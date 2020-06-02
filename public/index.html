@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .main{
+            margin-top: 50vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .tips{
+            margin-bottom: 10px;
+        }
+
+        input{
+            outline-style: none ;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 13px 14px;
+            width: 620px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: "Microsoft soft";
+        }
+
+        input:focus{
+            border-color: #87c1f0;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+        }
+
+        button{
+            margin-top: 10px;
+            outline: none;
+            border: none;
+            background-color: #2991e6;
+            color: white;
+            height: 30px;
+            border-radius: 15px;
+            width: 100px;
+        }
+
+        button:hover{
+            background-color: #82bcf0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="tips">输入url，类似 http://manhua.dmzj.com/xiaoxueshengdangmamayekeyima</div>
+        <input type="text" id="url" />
+        <button class="btn" onclick="sendReq()">开始下载！</button>
+    </div>
+
+    <script>
+        function sendReq(){
+            let url = document.getElementById("url").value
+            fetch('http://localhost:4000/main' , {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body : JSON.stringify({
+                    url : url
+                })
+            }).then(res => {
+                res.text().then(res => {
+                    console.log(res)
+                })
+            })
+            alert(`${url}开始下载了！`)
+        }
+    </script>
+</body>
+</html>
