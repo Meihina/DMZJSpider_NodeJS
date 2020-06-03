@@ -4,5 +4,4 @@
 + clone到本地后，执行 npm install 安装所有依赖
 + 用node命令将项目启动在本地服务器，默认地址为 http://localhost:4000/index.html
 + 在页面输入框内输入漫画url即可
-# 后续
-多线程优化
++ 可以通过修改proxy参数来改变线程数，默认为5
