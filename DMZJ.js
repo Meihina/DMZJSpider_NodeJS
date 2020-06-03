@@ -15,7 +15,7 @@ app.use(BodyParser.json())
 app.use(BodyParser.urlencoded({ extended: true }))
 app.use(express.static('./public'))
 
-const proxy = 5 // 线程数
+const proxy = 5 // 并发数
 
 
 // ===== 从站点爬下来的神必函数 =====
