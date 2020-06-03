@@ -15,6 +15,8 @@ app.use(BodyParser.json())
 app.use(BodyParser.urlencoded({ extended: true }))
 app.use(express.static('./public'))
 
+const proxy = 5 // 线程数
+
 
 // ===== 从站点爬下来的神必函数 =====
 const getPages = function(p,a,c,k,e,d){
@@ -152,9 +154,24 @@ app.post('/main' , (req) => {
     console.log(req.body.url)
     getBase(req.body.url).then((data) => {
         (async function(data){
-            for(var i = 0 ; i < data[0].length ; i++){
-                let PicData = await getDetail(data[0][i].href , data[0][i].name , data[1])
-                await PicDownload(PicData[0] , PicData[1] , PicData[2] , PicData[3])
+            for(var i = 0 ; i < data[0].length ; i += proxy){
+                let proxy_tmp = data[0].length - i < 5 ? data[0].length - i : proxy
+
+                let PicData = await Promise.all((() => {
+                    let res = []
+                    for(var j = 0 + i ; j < proxy_tmp + i ; j++){
+                        res.push(getDetail(data[0][j].href , data[0][j].name , data[1]))
+                    }
+                    return res
+                })())
+
+                await Promise.all((() => {
+                    let res = []
+                    for(var j = 0 ; j < proxy_tmp ; j++){
+                        res.push(PicDownload(PicData[j][0] , PicData[j][1] , PicData[j][2] , PicData[j][3]))
+                    }
+                    return res
+                })())
             }
             console.log('全部下载完毕，下一个!')
         })(data)
