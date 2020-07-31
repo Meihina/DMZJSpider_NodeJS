@@ -55,7 +55,10 @@ function getBase(url){
                     })
                 })
 
-                let mangaName = url.split('\/').pop()
+                let urlCreate = url.split('\/') , mangaName = ''
+                while(mangaName === ''){
+                    mangaName = urlCreate.pop()
+                }
 
                 try{
                     fs.mkdirSync(mangaName , (error) => {
@@ -95,7 +98,7 @@ function getDetail(url , name , mangaName){
                 pages = pages.split('[')[1].split(']')[0].split('\\').join('').split('\"').join('').split(',')
                 resolve([count , pages , name , mangaName])
             }else{
-                reject(error)
+                resolve([null , name])
             }
         })
     })
@@ -121,7 +124,7 @@ async function PicDownload(pageCount , pageUrlArray , name , mangaName){
             }).pipe(
                 fs.createWriteStream('./' + mangaName + '/' + name + '/' + i + '.jpg' , {autoClose : true}).on('close' , (err) => {
                     if(err){
-                        reject('failed.',err)
+                        resolve('failed.',err)
                     }else{
                         resolve(`${mangaName} ${name} ${i}.jpg had been saved.`)
                     }
@@ -154,12 +157,12 @@ app.post('/main' , (req) => {
     console.log(req.body.url)
     getBase(req.body.url).then((data) => {
         (async function(data){
-            for(var i = 0 ; i < data[0].length ; i += proxy){
+            for(let i = 0 ; i < data[0].length ; i += proxy){
                 let proxy_tmp = data[0].length - i < 5 ? data[0].length - i : proxy
 
                 let PicData = await Promise.all((() => {
                     let res = []
-                    for(var j = 0 + i ; j < proxy_tmp + i ; j++){
+                    for(let j = 0 + i ; j < proxy_tmp + i ; j++){
                         res.push(getDetail(data[0][j].href , data[0][j].name , data[1]))
                     }
                     return res
@@ -167,14 +170,22 @@ app.post('/main' , (req) => {
 
                 await Promise.all((() => {
                     let res = []
-                    for(var j = 0 ; j < proxy_tmp ; j++){
-                        res.push(PicDownload(PicData[j][0] , PicData[j][1] , PicData[j][2] , PicData[j][3]))
+                    for(let j = 0 ; j < proxy_tmp ; j++){
+                        if(PicData[j][0] === null){
+                            console.log(`${PicData[j][1]}出现了不可名状的错误，跳过过`)
+                            continue
+                        }
+                        res.push(
+                            PicDownload(PicData[j][0] , PicData[j][1] , PicData[j][2] , PicData[j][3])
+                        )
                     }
                     return res
                 })())
             }
             console.log('全部下载完毕，下一个!')
         })(data)
+    }).catch((err) => {
+        console.log(err)
     })
 })
 
