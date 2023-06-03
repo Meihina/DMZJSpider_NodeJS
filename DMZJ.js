@@ -45,13 +45,18 @@ const getPages = function(p,a,c,k,e,d){
 // ===== 获取该漫画所有漫画章节url以及名字
 function getBase(url){
     return new Promise((resolve , reject) => {
-        request(url , function (error , response , body) {
+        request({
+            url,
+            headers : {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.0.0',
+        }
+    } , function (error , response , body) {
             if (!error && response.statusCode == 200) {
                 let $ = cheerio.load(body) , unit = []
                 $('.cartoon_online_border ul li a').each((index , ele) => {
                     unit.push({
                         name : $(ele).text(),
-                        href : `http://manhua.dmzj.com${$(ele).attr('href')}`
+                        href : `https://manhua.dmzj.com${$(ele).attr('href')}`
                     })
                 })
 
@@ -83,7 +88,12 @@ function getBase(url){
 // ===== 获取单话漫画详情 =====
 function getDetail(url , name , mangaName){
     return new Promise((resolve , reject) => {
-        request(url + '#@page=1', function (error , response , body) {
+        request({
+            url: url + '#@page=1',
+            headers : {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.0.0',
+        }
+    }, function (error , response , body) {
             if (!error && response.statusCode == 200) {
                 // 获取漫画的页数以及主url
                 let $ = cheerio.load(body)
@@ -106,11 +116,11 @@ function getDetail(url , name , mangaName){
 
 // ===== 下载模块 =====
 async function PicDownload(pageCount , pageUrlArray , name , mangaName){
-    let SourceUrl = 'http://www.dmzj.com/category'
+    let SourceUrl = 'https://www.dmzj.com/category'
     function DL(pageUrlArray , name , mangaName){
         return new Promise((resolve , reject) => {
             request({
-                url : 'http://images.dmzj.com/' + pageUrlArray[i],
+                url : 'https://images.dmzj.com/' + pageUrlArray[i],
                 headers : {
                     'referer' : SourceUrl,
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36',
